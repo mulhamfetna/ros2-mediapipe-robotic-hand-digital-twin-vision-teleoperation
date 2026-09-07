@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, simulation architecture, or kinematic mapping methodology in your research, please cite it as below."
+authors:
+  - family-names: "Fetna"
+    given-names: "Mulham Mohammed"
+    affiliation: "Aleppo University / Neurobotics"
+title: "ROS 2 MediaPipe Robotic Hand: Real-Time Teleoperation Digital Twin"
+version: 1.0.0
+date-released: 2026-09-07
+url: "https://github.com/YOUR_USERNAME/ros2-mediapipe-robotic-hand"
+license: "AGPL-3.0"
+keywords:
+  - "ROS 2"
+  - "MediaPipe"
+  - "Digital Twin"
+  - "Teleoperation"
+  - "Kinematics"
+  - "Mechatronics"
