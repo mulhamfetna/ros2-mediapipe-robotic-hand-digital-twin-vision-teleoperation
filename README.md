@@ -6,10 +6,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX) 
 *(Note: Update DOI badge once published to Zenodo)*
 
-<div align="center">
-  <img src="docs/hero_demo.webm" alt="Real-time Hand Tracking Demo" width="800">
-  <p><em>Real-time teleoperation mapping human hand kinematics to a custom URDF CAD model via computer vision.</em></p>
-</div>
+[Screencast_20260906_150226.webm](https://github.com/user-attachments/assets/a009bd19-8073-4052-9b25-89f1b11a3a1d)
+
 
 ## 📖 Overview
 This project implements a fully containerized, vision-based digital twin of a robotic hand. By leveraging a standard RGB webcam, the system tracks human hand landmarks in real-time, computes the forward kinematics, maps the raw angles to mechanical joint limits, and drives a custom 3D CAD model (URDF) inside ROS 2 RViz. 
