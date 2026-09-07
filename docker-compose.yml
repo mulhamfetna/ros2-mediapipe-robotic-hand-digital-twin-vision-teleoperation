@@ -1,0 +1,64 @@
+services:
+  ros_rviz:
+    build:
+      context: .
+      dockerfile: ./ros_rviz/Dockerfile
+    container_name: ros_rviz
+    network_mode: "host"
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - ROS_DOMAIN_ID=42
+      - QT_X11_NO_MITSHM=1
+    devices:
+      - /dev/dri:/dev/dri    # <--- CRITICAL: Restores Intel GPU 3D rendering
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+    command: >
+      bash -c "
+        source /opt/ros/jazzy/setup.bash &&
+        ros2 run robot_state_publisher robot_state_publisher /workspace/ros_rviz/urdf/robot.urdf &
+        exec rviz2 -d /workspace/ros_rviz/config.rviz
+      "
+    privileged: true
+    
+  
+  hand_tracker:
+    build:
+      context: .
+      dockerfile: ./hand_tracker/Dockerfile
+    container_name: hand_tracker
+    network_mode: "host"
+    ipc: host
+    pid: host
+    environment:
+      - ROS_DOMAIN_ID=42
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/dri:/dev/dri
+    volumes:
+      - ./hand_tracker/src:/ws_hand_tracker/src:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    privileged: true
+  
+  topic_sniffer:
+    build:
+      context: ./topic_sniffer
+      dockerfile: Dockerfile
+    container_name: topic_sniffer
+    network_mode: "host"
+    ipc: host
+    pid: host
+    environment:
+      - ROS_DOMAIN_ID=42
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./topic_sniffer/src:/ws_sniffer/src:ro
+      - ./logs:/ws_sniffer/log
+    depends_on:
+      - hand_tracker

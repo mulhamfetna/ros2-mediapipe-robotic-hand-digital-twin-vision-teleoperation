@@ -1,0 +1,10 @@
+{
+    "documentId": "a2dbb5f16624f10f1aa22f02",
+    "workspaceId": "3eff80c19eddad52bfa92f87",
+    "elementId": "4d69727744037003575f4068",
+    "outputFormat": "urdf",
+    "simplifyStl": false,
+    "addDummyBaseLink": true,
+    "jointMaxEffort": 1.0,
+    "jointMaxVelocity": 2.0
+}

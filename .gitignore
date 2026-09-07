@@ -1,0 +1,25 @@
+# ROS 2 Build Artifacts
+build/
+install/
+log/
+*.log
+
+# Python Environments
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Docker & System
+.dockerignore
+.env
+.DS_Store
+*~
+
+# IDEs
+.vscode/
+.idea/
+
+# Ignore local CAD exports if you prefer users to download them fresh
+# assets/*.stl
