@@ -17,7 +17,7 @@ authors:
     email: "contact@mulhamfetna.com"
     affiliation: "University of Aleppo"
 doi: "10.5281/zenodo.22658556"
-version: 1.0.0
+version: 1.1.0
 date-released: 2026-09-08
 url: "https://github.com/mulhamfetna/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation"
 repository-code: "https://github.com/mulhamfetna/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation"
