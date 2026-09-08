@@ -45,6 +45,11 @@ does not participate in the graph above — see
 
 ## The two published topics, and why there are two
 
+![Interleaved container logs showing hand_tracker and topic_sniffer output for the same frames](../images/two-topics-log.png)
+
+*Both topics, same frames. `hand_tracker` logs one mapped joint; `topic_sniffer` logs all fifteen
+raw angles. The redundancy is what makes a fault localizable to a layer.*
+
 `hand_tracker_node.py` publishes **twice per frame**, and the distinction matters:
 
 | Topic | Type | Contents | Consumer |
