@@ -4,17 +4,35 @@ Five habits that move work from Python back into Onshape, where it belongs. Each
 because its absence cost real time on this project — see
 [known export defects](3-known-export-defects.md) for the specific damage.
 
+The assembly is public if you want to inspect it directly:
+**[ROS-hand on Onshape](https://cad.onshape.com/documents/a2dbb5f16624f10f1aa22f02/w/3eff80c19eddad52bfa92f87/e/4d69727744037003575f4068)**
+
+![The Onshape assembly with the mate features tree expanded, showing all fifteen dof_-prefixed revolute mates](../images/onshape-mate-tree.png)
+
+*The `Mate features (15)` tree is the contract. Every name in it becomes a URDF joint name, and
+every URDF joint name has to match a string in the Python mapping table.*
+
 Bridging the gap between a modern, modular CAD platform like Onshape and the rigid, 15-year-old XML standards of ROS/URDF is where most roboticists lose days of their lives.
 
 Because the `onshape-to-robot` exporter blindly translates exactly what it sees in your CAD assembly, any shortcuts taken in CAD become catastrophic bugs in ROS. Based on the URDF errors we had to manually bypass (like the `twinky` vs `pinky` naming, the duplicate `part_2_2` links, and the manual limit mapping in Python), here is the exact protocol to make the CAD-to-ROS pipeline a "one-shot" export in the future.
 
 ### 1. The Naming Dictatorship (Mates = Joints)
 
-**The Trap:** In Onshape, it is easy to leave mates with default names like `Revolute 1` or use legacy names from old iterations (like `twinky` instead of `pinky`). The exporter uses the exact Mate name as the URDF `<joint name="...">`.
+**The Trap:** In Onshape, it is easy to leave mates with default names like `Revolute 1` or use legacy names from old iterations (like `twinky` instead of `pinky`).
+
+The exporter's convention is the `dof_` prefix: a mate named `dof_index_mcp` is exported as a
+joint, and one without the prefix is not exported as a joint at all. The prefix is then **stripped**,
+so the mate `dof_index_mcp` becomes `<joint name="index_mcp">`. That is why the mate tree in this
+assembly reads `dof_twinky_dip`, `dof_ring_mcp`, `dof_thumb_pip` and so on, while the URDF reads
+`twinky_dip`, `ring_mcp`, `thumb_pip`.
+
+Two consequences follow. Forget the prefix and your joint silently becomes a rigid weld. And
+whatever you write after the prefix is what the Python mapping table must match, character for
+character.
 **The One-Shot Fix:**
 
 * Rename every single moving Mate in the Onshape Assembly tree to its final ROS topic name before exporting (e.g., `index_mcp`, `thumb_dip`).
-* If you duplicate a finger assembly in Onshape, you must manually go into the new duplicated folder and rename its mates (`ring_mcp`, `ring_pip`). If you don't, the exporter crashes or merges them incorrectly (which is why your URDF was missing the ring finger MCP).
+* If you duplicate a finger assembly in Onshape, you must manually go into the new duplicated folder and rename its mates (`ring_mcp`, `ring_pip`). If you don't, the exporter crashes or merges them incorrectly — which is exactly why the first export of this hand was missing the ring finger's MCP joint.
 
 ### 2. Hardcoding Limits at the CAD Level
 

@@ -14,7 +14,7 @@ no test/lint suite.
 
 ```bash
 ./setup_host.sh                     # xhost +local:root, /tmp/runtime-root, DRI check — required before first up
-docker compose up --build           # starts ALL FOUR services (incl. gazebo_sim, which opens a Gazebo window)
+docker compose up --build           # starts the three active services; gazebo_sim is commented out in the compose file
 docker compose up ros_rviz hand_tracker   # the usual pair: RViz twin + tracker
 docker compose logs -f hand_tracker
 docker compose restart hand_tracker  # picks up Python/URDF edits — see below

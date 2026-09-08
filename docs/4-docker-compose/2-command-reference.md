@@ -5,6 +5,12 @@ Every entry here corresponds to a failure that actually happened during developm
 
 A breakdown of the terminal commands needed to get the GUI and the physics engine working, and what each one is actually defending against.
 
+![The terminal during docker compose up --build, showing image layers exporting, colcon builds finishing and the ROS nodes starting](../images/compose-build-log.png)
+
+*A full `docker compose up --build`: four images built, `hand_msgs` compiled separately inside both
+Python containers, then the nodes attaching. The two `[WARN]` lines partway down are expected and
+[documented](../5-onshape-urdf/3-known-export-defects.md).*
+
 ### 1. `xhost +local:root`
 
 **What it does:** Unlocks your computer's display server security.

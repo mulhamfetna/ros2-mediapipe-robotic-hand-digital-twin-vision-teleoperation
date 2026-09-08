@@ -34,10 +34,14 @@ and containers, with the surprising parts called out.
                                          └─────────────┘
 ```
 
-All four containers share `ROS_DOMAIN_ID=42` and run with `network_mode: host`, so discovery
+The three active containers share `ROS_DOMAIN_ID=42` and run with `network_mode: host`, so discovery
 happens over the host's own network interface rather than a Docker bridge. There is no compose
 network to inspect — from the host, `ROS_DOMAIN_ID=42 ros2 topic list` inside any `ros:jazzy`
 container sees the whole graph.
+
+A fourth service, `gazebo_sim`, is defined in `docker-compose.yml` but currently commented out. It
+does not participate in the graph above — see
+[Gazebo physics](../4-docker-compose/3-gazebo-physics.md) for why it is parked.
 
 ## The two published topics, and why there are two
 

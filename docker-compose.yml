@@ -24,25 +24,25 @@ services:
       "
     privileged: true
 
-  gazebo_sim:
-    build:
-      context: .
-      dockerfile: ./gazebo_sim/Dockerfile
-    container_name: gazebo_sim
-    network_mode: "host"
-    ipc: host
-    pid: host
-    environment:
-      - DISPLAY=${DISPLAY:-:0}
-      - ROS_DOMAIN_ID=42
-      - QT_X11_NO_MITSHM=1
-      - GZ_SIM_RESOURCE_PATH=/workspace/assets
-    devices:
-      - /dev/dri:/dev/dri
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /mnt/data/projects/ros-robotic-hand:/workspace:rw
-    privileged: true
+  # gazebo_sim:
+  #   build:
+  #     context: .
+  #     dockerfile: ./gazebo_sim/Dockerfile
+  #   container_name: gazebo_sim
+  #   network_mode: "host"
+  #   ipc: host
+  #   pid: host
+  #   environment:
+  #     - DISPLAY=${DISPLAY:-:0}
+  #     - ROS_DOMAIN_ID=42
+  #     - QT_X11_NO_MITSHM=1
+  #     - GZ_SIM_RESOURCE_PATH=/workspace/assets
+  #   devices:
+  #     - /dev/dri:/dev/dri
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  #     - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+  #   privileged: true
 
   hand_tracker:
     build:

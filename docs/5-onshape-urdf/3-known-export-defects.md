@@ -33,19 +33,19 @@ Renaming is a three-place edit that must happen atomically — the Onshape mates
 alone deliberately: the cost is cosmetic, the risk of a partial rename is not. The real fix belongs
 upstream in the CAD, before the next export.
 
-## 2. `ring_mcp` is mapped to limits it does not have
+## 2. `ring_mcp` was mapped to limits it does not have
 
-**Status:** Outstanding. The one genuine numerical defect in the pipeline.
+**Status:** Fixed (2026-09-08). It was the one genuine numerical defect in the pipeline.
 
-Fourteen of the fifteen rows in `JOINT_MAPPING` transcribe their joint's `<limit>` values exactly.
-`ring_mcp` does not:
+Fourteen of the fifteen rows in `JOINT_MAPPING` transcribed their joint's `<limit>` values exactly.
+`ring_mcp` did not:
 
 | Source | Open | Closed |
 |---|---|---|
-| `JOINT_MAPPING` in `hand_tracker_node.py` | `0.000` | `-1.571` |
+| `JOINT_MAPPING` (before the fix) | `0.000` | `-1.571` |
 | `<limit>` in `robot.urdf` | `0.39671` | `-1.17409` |
 
-Neither endpoint matches. At full curl the node commands **−1.571 rad** into a joint whose
+Neither endpoint matched. At full curl the node commanded **−1.571 rad** into a joint whose
 mechanical lower bound is **−1.174 rad** — roughly 23° past its stop.
 
 `robot_state_publisher` does not enforce URDF limits; it applies whatever transform it is handed.
@@ -57,11 +57,14 @@ The cause is chronological. `ring_mcp` originally exported with the same generic
 the other fingers (see defect 3); the mapping was written against those. The CAD later gained a
 real limit for that mate and the URDF was re-exported, but the Python table was not updated.
 
-**The fix** is to bring the row in line with the joint it drives:
+**The fix** brought the row in line with the joint it drives:
 
 ```python
 ('ring_mcp',    9,  0.397, -1.174),
 ```
+
+The durable fix is different, and still outstanding: parse the limits out of the URDF at startup
+instead of transcribing them, so the two representations cannot disagree in the first place.
 
 ## 3. The ring finger's MCP mate was missing entirely
 
@@ -107,7 +110,8 @@ A portable version would wrap the description in a `hand_description` package an
 
 ## 5. Inertials are present and correct — the Gazebo gap is elsewhere
 
-**Status:** Not a defect. Worth recording because it is commonly assumed to be one.
+**Status:** Not a defect, with one cosmetic wart on the root link. Recorded because the *absence*
+of inertia is commonly assumed to be the blocker here, and it is not.
 
 The Onshape parts *do* carry material assignments, so the exporter computed real physical
 properties for every link:
@@ -122,8 +126,20 @@ properties for every link:
 ```
 
 Link masses run from 1.86 g at the fingertips to 61 g for the palm, with full inertia tensors.
-`base_link` alone carries the conventional `1e-09` dummy mass, which is correct for a massless
-root anchor.
+
+`base_link` carries a `1e-09` dummy mass — and ROS objects to it. Every startup logs:
+
+```text
+[WARN] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does
+not support a root link with an inertia. As a workaround, you can add an extra dummy link to
+your URDF.
+```
+
+KDL, which `robot_state_publisher` uses to build the kinematic chain, wants the root link to carry
+*no* `<inertial>` block at all — not a negligible one. The exporter's `addDummyBaseLink` option
+writes the near-zero inertia anyway. It is harmless in practice, since the root is fixed to the
+world and nothing integrates its dynamics, but the clean fix is to strip the `<inertial>` element
+from `base_link` after export, or to add a second dummy link above it.
 
 So the reason [the Gazebo path](../4-docker-compose/3-gazebo-physics.md) does not yet give a
 working physics twin is **not** missing inertia. It is that the URDF describes geometry without
@@ -152,16 +168,50 @@ after every re-export, because the failure mode is memorable: fingers that bend 
 whole digit that inverts through the palm. Nothing warns you — the transform math is perfectly
 valid, it is simply describing the wrong hinge.
 
+## 7. `robot_state_publisher` is invoked through a deprecated path
+
+**Status:** Open. Will break on a future ROS 2 release.
+
+The second warning at every startup:
+
+```text
+[WARN] [robot_state_publisher]: No robot_description parameter, but command-line argument
+available. Assuming argument is name of URDF file. This backwards compatibility fallback will
+be removed in the future.
+```
+
+The compose command passes the URDF as a positional argument:
+
+```yaml
+ros2 run robot_state_publisher robot_state_publisher /workspace/ros_rviz/urdf/robot.urdf &
+```
+
+That path is a compatibility shim. The supported form sets the `robot_description` parameter
+explicitly — most cleanly from a launch file that reads the URDF and passes its *contents*:
+
+```python
+Node(package="robot_state_publisher", executable="robot_state_publisher",
+     parameters=[{"robot_description": Path(urdf_path).read_text()}])
+```
+
+Nothing is broken today. It is a dated deprecation notice with a removal promise attached.
+
 ## Summary
 
 | # | Defect | Status | Cost if ignored |
 |---|---|---|---|
 | 1 | Pinky named `twinky` | Open, cosmetic | Confusion only |
-| 2 | `ring_mcp` limits mismatch | **Open, real** | Commands 23° past the mechanical stop |
-| 3 | Missing `ring_mcp` joint | Fixed | — (stale comment remains in source) |
+| 2 | `ring_mcp` limits mismatch | Fixed | Commanded 23° past the mechanical stop |
+| 3 | Missing `ring_mcp` joint | Fixed | — |
 | 4 | Absolute mesh paths | Patched, fragile | Repo is not relocatable; patch lost on re-export |
 | 5 | Inertials | Correct | — |
 | 6 | Joint axes | Correct | — |
+| 7 | Deprecated `robot_description` argument | **Open** | Breaks on a future ROS 2 release |
 
-Only defect 2 changes what appears on screen today. Defect 4 is the one that will bite the next
-person who clones the repository.
+Nothing on this list changes what appears on screen today. Defect 4 is the one that will bite the
+next person who clones the repository; defect 7 is the one with a deadline attached.
+
+The underlying lesson from defect 2 outlives the fix: it was a contract duplicated across two
+files — a URDF and a Python table — with nothing to detect divergence. The same shape sits in the
+duplicated `hand_msgs` package, where a field added to one copy and not the other yields a
+subscriber that silently never fires.

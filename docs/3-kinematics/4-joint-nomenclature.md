@@ -61,11 +61,18 @@ Note the MCP triplet's first point is landmark **0, the wrist** — the palm has
 base of each metacarpal, so wrist→MCP stands in for the metacarpal bone. This is why MCP angles are
 the least anatomically faithful of the three, and why their URDF limits are the narrowest.
 
-## Producing a labelled diagram
+## Locating the joints on the mechanism
 
-For a publication figure, the clearest source is a CAD render with the fingers partly bent, so the
-linkage hierarchy is visible rather than collapsed into a straight line. Draw leader lines from the
-mechanical pins to the labels above:
+![The Onshape CAD assembly, fingers extended, showing the blue linkages, grey phalanges and the orange thumb link](../images/cad-hand-extended.png)
+
+*Fingers extended. The blue linkages carry the finger joints; the orange link drives the thumb.*
+
+![The same assembly with the fingers curled, exposing the linkage hierarchy at each knuckle](../images/cad-hand-bent.png)
+
+*Curled. This is the more useful view for a labelled figure — the hierarchy at each knuckle is
+visible rather than collapsed into a straight line.*
+
+For a publication figure, draw leader lines from the mechanical pins to the labels above:
 
 - **DIP** → the highest pin, connecting the blue linkage to the grey fingertip.
 - **PIP** → the middle pin, halfway down the blue linkage.

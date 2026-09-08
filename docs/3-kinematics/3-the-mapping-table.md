@@ -2,7 +2,9 @@
 
 `JOINT_MAPPING` is the contract between the vision layer and the mechanical model. Fifteen rows,
 each one binding a computed angle to a named joint and its physical range. Get a row wrong and
-nothing errors — a finger simply moves incorrectly.
+nothing errors — a finger simply moves incorrectly. That is not hypothetical: `ring_mcp` carried
+limits the joint did not have until it was
+[corrected](../5-onshape-urdf/3-known-export-defects.md).
 
 **The Landmark Triplet Engine (`compute_15_joint_angles`)**
 MediaPipe outputs 21 global 3D landmark coordinates for a tracked hand. To calculate joint flexion, this function groups those coordinates into 15 anatomical triplets `(p1, p2, p3)`. For every triplet, it creates two directional vectors meeting at the joint pivot (`p2`) and computes the interior angle using the vector dot product formula. This outputs an array of 15 raw radian values representing the physical curvature of each finger joint.

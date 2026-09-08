@@ -36,7 +36,7 @@ def compute_15_joint_angles(landmarks):
 RAW_STRAIGHT_ANGLE = 3.10  # ~177 degrees (open hand)
 RAW_CURLED_ANGLE = 1.60    # ~90 degrees (bent finger)
 
-# Explicit Kinematic Mapping directly from your updated URDF limits
+# Explicit kinematic mapping, transcribed from the URDF joint limits
 # Format: ('URDF_Joint_Name', MP_Index, URDF_Open_Angle, URDF_Closed_Angle)
 JOINT_MAPPING = [
     # THUMB
@@ -54,8 +54,8 @@ JOINT_MAPPING = [
     ('middle_pip',  7,  0.000,  1.571),
     ('middle_dip',  8, -0.087,  1.484),
     
-    # RING (Requires manual URDF fix: rename duplicate 'twinky_mcp' to 'ring_mcp')
-    ('ring_mcp',    9,  0.000, -1.571),
+    # RING
+    ('ring_mcp',    9,  0.397, -1.174),
     ('ring_pip',   10,  0.000,  1.571),
     ('ring_dip',   11,  0.000, -1.571),
     

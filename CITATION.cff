@@ -6,7 +6,7 @@ abstract: >-
   feeds Google MediaPipe Hands, whose 21 spatial landmarks are converted into 15 anatomical joint
   angles by vector dot product, normalized into a flexion ratio, and linearly interpolated onto the
   mechanical joint limits of a CAD-exported URDF. The resulting joint states drive a digital twin in
-  ROS 2 Jazzy and RViz in real time. The stack runs as four Docker Compose services with X11
+  ROS 2 Jazzy and RViz in real time. The stack runs as a set of Docker Compose services with X11
   forwarding, GPU and webcam passthrough, and includes the full CAD-to-URDF export pipeline from
   Onshape.
 type: software

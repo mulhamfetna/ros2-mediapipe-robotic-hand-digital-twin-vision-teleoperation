@@ -41,14 +41,15 @@ findable cause.
 
 ## Architecture
 
-Four containers on ROS 2 Jazzy, sharing `ROS_DOMAIN_ID=42` over host networking:
+Three active containers on ROS 2 Jazzy, sharing `ROS_DOMAIN_ID=42` over host networking, plus a
+fourth that is defined but currently commented out:
 
 | Service | Role | Key detail |
 |---|---|---|
 | `hand_tracker` | Vision + kinematics + publishing | The whole pipeline in one node, 10 Hz |
 | `ros_rviz` | `robot_state_publisher` + `rviz2` | Deliberately runs **no** `joint_state_publisher` — the tracker is the state publisher |
 | `topic_sniffer` | Subscribes to raw angles, prints them | Debug channel: isolates vision faults from mapping faults |
-| `gazebo_sim` | Spawns the URDF into Gazebo Harmonic | Geometry only — [see limitations](#known-limitations) |
+| `gazebo_sim` | Spawns the URDF into Gazebo Harmonic | **Commented out** in `docker-compose.yml` — geometry only, [see limitations](#known-limitations) |
 
 <table>
 <tr>
@@ -56,6 +57,11 @@ Four containers on ROS 2 Jazzy, sharing `ROS_DOMAIN_ID=42` over host networking:
 <td width="50%"><img src="docs/images/rviz-curled-pose.png" alt="The URDF hand model in RViz, fingers curled"><br><em>The same pose on the CAD twin</em></td>
 </tr>
 </table>
+
+Two screencasts under [`docs/media/`](docs/media/) show the system from both ends: a tour of the
+[Onshape assembly and its mate tree](docs/media/onshape-assembly-tour.webm), and a full
+[`docker compose up --build`](docs/media/stack-startup.webm) from cold images through to live
+tracking.
 
 ## Quick start
 
@@ -87,8 +93,11 @@ Add the other services as needed:
 
 ```bash
 docker compose up topic_sniffer   # stream the raw angles
-docker compose up gazebo_sim      # spawn into Gazebo Harmonic
 ```
+
+The `gazebo_sim` service is commented out in `docker-compose.yml`. Uncomment it to spawn the model
+into Gazebo Harmonic — but read [the limitations](#known-limitations) first: the model has mass and
+geometry but no actuation, so it will simply fall.
 
 Source directories are bind-mounted and both Python containers run `colcon build` on entry, so
 editing `hand_tracker/src/hand_tracker_node.py`, the URDF or the RViz config needs only
@@ -120,7 +129,7 @@ orientations; the table encodes that rather than fighting it.
 | Thumb | `thumb_mcp` `thumb_pip` `thumb_dip` | Names follow the mechanism, not strict anatomy ([why](docs/3-kinematics/4-joint-nomenclature.md)) |
 | Index | `index_mcp` `index_pip` `index_dip` | |
 | Middle | `middle_mcp` `middle_pip` `middle_dip` | |
-| Ring | `ring_mcp` `ring_pip` `ring_dip` | `ring_mcp` limits are currently **out of sync** with the URDF |
+| Ring | `ring_mcp` `ring_pip` `ring_dip` | |
 | Pinky | `twinky_mcp` `twinky_pip` `twinky_dip` | `twinky` is a legacy CAD name that propagated everywhere |
 
 ## Documentation
@@ -152,16 +161,28 @@ Stated plainly, because they bound what this project demonstrates:
   wired into the ROS node.
 - **Forward kinematics only, per joint.** Each joint is interpolated independently. No IK, no
   inter-joint coupling.
-- **One `ring_mcp` mapping row is wrong** — it commands ~23° past the joint's mechanical stop.
-  Documented in full in [known export defects](docs/5-onshape-urdf/3-known-export-defects.md).
+- **`robot_state_publisher` is started through a deprecated path** — the URDF is passed as a
+  positional argument rather than via the `robot_description` parameter. It works today and logs a
+  removal warning. [Documented here](docs/5-onshape-urdf/3-known-export-defects.md).
 - **Not relocatable** without editing the absolute paths described above.
 
+Limits that were fixed rather than merely documented are recorded in the same file — including a
+`ring_mcp` mapping row that used to command ~23° past the joint's mechanical stop.
+
 ## CAD
+
+**[→ Open the assembly on Onshape](https://cad.onshape.com/documents/a2dbb5f16624f10f1aa22f02/w/3eff80c19eddad52bfa92f87/e/4d69727744037003575f4068)**
+
+<img src="docs/images/cad-hand-extended.png" alt="The robotic hand assembly in Onshape, fingers extended" width="520">
 
 Designed in Onshape and exported with
 [`onshape-to-robot`](https://github.com/rhoban/onshape-to-robot). The exporter reads mate names,
 limits and material densities directly, so joint names and inertia tensors come from the CAD rather
 than being hand-written — see [exporter setup](docs/5-onshape-urdf/2-exporter-setup.md).
+
+The exporter's convention is a `dof_` prefix: the mate `dof_index_mcp` becomes the URDF joint
+`index_mcp`, and a revolute mate *without* the prefix is exported as a rigid weld rather than a
+joint. See [CAD rules](docs/5-onshape-urdf/1-cad-rules.md).
 
 Re-exporting needs Onshape API keys in a local `.env` (`ONSHAPE_API`, `ONSHAPE_ACCESS_KEY`,
 `ONSHAPE_SECRET_KEY`) alongside the document IDs already in `config.json`. The `.env` is gitignored

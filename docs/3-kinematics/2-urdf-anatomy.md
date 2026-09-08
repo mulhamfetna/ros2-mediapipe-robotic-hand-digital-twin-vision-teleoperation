@@ -25,6 +25,11 @@ Joints connect child links to parent links, establishing how parts move relative
 * **`<origin>`**: The 3D translation (`xyz`) and rotation (`rpy`) offset specifying where the joint is located on the parent link.
 * **`<axis>`**: Defines which local vector axis (`0 0 1`, meaning the Z-axis) the joint rotates around.
 
+![The Onshape assembly beside its mate features tree](../images/onshape-assembly.png)
+
+*Where the tree comes from: each `dof_`-prefixed mate in the Onshape assembly becomes one
+`<joint>` in the URDF, and each part instance becomes one `<link>`.*
+
 **The 15-DOF Finger Architecture**
 The file maps 5 digits, each containing 3 revolute joints (MCP at the base, PIP in the middle, and DIP at the tip), totaling 15 degrees of freedom:
 

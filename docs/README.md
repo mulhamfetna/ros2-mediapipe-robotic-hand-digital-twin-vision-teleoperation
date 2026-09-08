@@ -37,7 +37,7 @@ The translation layer between a human hand and a CAD assembly.
 |---|---|
 | [1. Vector math to flexion](3-kinematics/1-vector-math.md) | Triplets, dot products, normalization, and linear interpolation onto mechanical limits |
 | [2. URDF anatomy](3-kinematics/2-urdf-anatomy.md) | Links, joints, inertials, and the 15-DOF tree this hand actually exports as |
-| [3. The mapping table](3-kinematics/3-the-mapping-table.md) | `JOINT_MAPPING` line by line, the calibration constants, and the one row that is currently wrong |
+| [3. The mapping table](3-kinematics/3-the-mapping-table.md) | `JOINT_MAPPING` line by line and the calibration constants behind it |
 | [4. Joint nomenclature](3-kinematics/4-joint-nomenclature.md) | What MCP/PIP/DIP/IP/CMC mean, in English and Arabic, and how the mechanism's naming differs from the anatomy |
 
 ## 4. Infrastructure — [`4-docker-compose/`](4-docker-compose/)
@@ -58,13 +58,21 @@ Where a mechanical model becomes a robot description.
 |---|---|
 | [1. CAD rules for a clean export](5-onshape-urdf/1-cad-rules.md) | Five habits in Onshape that remove all manual XML editing downstream |
 | [2. Exporter setup](5-onshape-urdf/2-exporter-setup.md) | Installing `onshape-to-robot`, API keys, `config.json`, and the flags that matter |
-| [3. Known export defects](5-onshape-urdf/3-known-export-defects.md) | What this specific export got wrong, how each was patched, and what is still outstanding |
+| [3. Known export defects](5-onshape-urdf/3-known-export-defects.md) | What this specific export got wrong, how each was patched, and the two warnings ROS logs at every startup |
 
 ## 6. Positioning — [`6-positioning/`](6-positioning/)
 
 | Doc | What it covers |
 |---|---|
 | [1. How to pitch this](6-positioning/1-how-to-pitch-this.md) | Three honest framings of the work, depending on who is listening |
+
+## Media
+
+- [`media/onshape-assembly-tour.webm`](media/onshape-assembly-tour.webm) — the CAD assembly and its
+  fifteen `dof_`-prefixed mates, rotated through several views.
+- [`media/stack-startup.webm`](media/stack-startup.webm) — a full `docker compose up --build`, from
+  cold images through `colcon build` to live tracking.
+- [`images/`](images/) — stills pulled from both, used as figures throughout these docs.
 
 ## Conventions in these docs
 
