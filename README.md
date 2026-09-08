@@ -4,7 +4,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ed?logo=docker&logoColor=white)](https://www.docker.com/)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-0.10.14-ff6f00?logo=google&logoColor=white)](https://ai.google.dev/edge/mediapipe)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![DOI](https://zenodo.org/badge/1359184365.svg)](https://zenodo.org/badge/latestdoi/1359184365)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22658556.svg)](https://doi.org/10.5281/zenodo.22658556)
 
 A 15-DOF robotic hand, driven live by a $20 webcam. No gloves, no markers, no depth sensor — a
 standard RGB camera, two neural networks, some vector geometry, and a CAD model that mirrors your
@@ -173,6 +173,10 @@ If you use this software, its architecture, or the kinematic mapping methodology
 please cite it. Metadata lives in [`CITATION.cff`](CITATION.cff); GitHub renders a ready-made
 citation from the *Cite this repository* button in the sidebar.
 
+The **concept DOI [10.5281/zenodo.22658556](https://doi.org/10.5281/zenodo.22658556)** always resolves to the
+latest version; cite it unless you need to pin a specific release. v1.0.0 is
+[10.5281/zenodo.22658557](https://doi.org/10.5281/zenodo.22658557).
+
 ```bibtex
 @software{fetna_ros2_mediapipe_robotic_hand_2026,
   author    = {Fetna, Mulham Mohammed},
@@ -180,7 +184,8 @@ citation from the *Cite this repository* button in the sidebar.
   year      = {2026},
   version   = {1.0.0},
   publisher = {Zenodo},
-  url       = {https://github.com/mulhamfetna/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation}
+  doi       = {10.5281/zenodo.22658556},
+  url       = {https://doi.org/10.5281/zenodo.22658556}
 }
 ```
 
