@@ -111,7 +111,7 @@ though:
 
 - The URDF cannot be loaded outside a container without those paths existing on the host.
 - The bind mount source in `docker-compose.yml` is itself an absolute host path
-  (`/mnt/data/projects/ros-robotic-hand`), so **cloning this repo anywhere else breaks both the
+  (`/mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation`), so **cloning this repo anywhere else breaks both the
   mount and the meshes** until that line is edited.
 - Re-exporting from Onshape overwrites the paths, so the patch has to be reapplied every time.
 

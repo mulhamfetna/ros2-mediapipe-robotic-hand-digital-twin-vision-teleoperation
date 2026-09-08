@@ -15,7 +15,7 @@ services:
       - /dev/dri:/dev/dri
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+      - /mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation:/workspace:rw
     command: >
       bash -c "
         source /opt/ros/jazzy/setup.bash &&
@@ -41,7 +41,7 @@ services:
   #     - /dev/dri:/dev/dri
   #   volumes:
   #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
-  #     - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+  #     - /mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation:/workspace:rw
   #   privileged: true
 
   hand_tracker:

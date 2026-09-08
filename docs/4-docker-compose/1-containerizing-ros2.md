@@ -65,7 +65,7 @@ Docker containers have no desktop environment; they are completely headless.
 
 ```yaml
     volumes:
-      - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+      - /mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation:/workspace:rw
 
 ```
 

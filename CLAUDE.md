@@ -60,7 +60,7 @@ Three couplings will silently break the twin if edited independently:
    produce a silently dead subscription. Edit both.
 
 The URDF hardcodes mesh paths as `file:///workspace/assets/part_N.stl`, and `docker-compose.yml`
-hardcodes the host bind mount `/mnt/data/projects/ros-robotic-hand:/workspace`. Moving or cloning
+hardcodes the host bind mount `/mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation:/workspace`. Moving or cloning
 this repo to another path breaks `ros_rviz` and `gazebo_sim` until both are updated.
 
 `gazebo_sim/entrypoint.sh` launches `gz sim empty.sdf`, sleeps 4 s, then spawns the same URDF via

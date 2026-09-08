@@ -83,7 +83,7 @@ Two windows open: RViz with the hand model, and a MediaPipe preview with the lan
 your hand in frame and the model follows.
 
 > [!IMPORTANT]
-> `docker-compose.yml` bind-mounts an **absolute host path** (`/mnt/data/projects/ros-robotic-hand`)
+> `docker-compose.yml` bind-mounts an **absolute host path** (`/mnt/data/projects/ros2-mediapipe-robotic-hand-digital-twin-vision-teleoperation`)
 > to `/workspace`, and the URDF references its meshes as `file:///workspace/assets/*.stl`. If you
 > cloned this repository anywhere else, edit that path in the `ros_rviz` and `gazebo_sim` volume
 > entries or RViz will start with no meshes. This is [known defect
