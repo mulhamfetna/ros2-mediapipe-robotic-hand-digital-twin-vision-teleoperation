@@ -63,8 +63,18 @@ real limit for that mate and the URDF was re-exported, but the Python table was 
 ('ring_mcp',    9,  0.397, -1.174),
 ```
 
-The durable fix is different, and still outstanding: parse the limits out of the URDF at startup
-instead of transcribing them, so the two representations cannot disagree in the first place.
+The durable fix landed alongside it: `resolve_joint_mapping()` now parses `<limit>` out of the
+URDF at node startup, so the limits exist in exactly one place. What remains in Python is the one
+thing the URDF genuinely cannot express — which end of each joint's range corresponds to the open
+hand, a CAD convention that differs per mate:
+
+```python
+('index_mcp',   3, 'upper'),   # opens at the joint's upper limit
+('middle_pip',  7, 'lower'),   # opens at its lower limit
+```
+
+A joint renamed by a re-export now raises at startup rather than silently freezing that finger,
+and a URDF joint with no mapping row logs a warning.
 
 ## 3. The ring finger's MCP mate was missing entirely
 

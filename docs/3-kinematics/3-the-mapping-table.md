@@ -17,7 +17,16 @@ This list serves as the hardware dictionary, bridging the 15 raw calculation ind
 
 * The target URDF joint name (e.g., `thumb_mcp`, `index_pip`).
 * The source index pointing to the corresponding raw computed angle.
-* The physical open-state and closed-state radian limits extracted directly from your robot's URDF file.
+* Which end of that joint's range is the **open hand** — `'lower'` or `'upper'`.
+
+The radian limits themselves are **not** in this table. `resolve_joint_mapping()` reads them from
+`<limit lower/upper>` in the URDF when the node starts, so the numbers live in exactly one place.
+They used to be transcribed here by hand, which is how `ring_mcp` came to carry limits its joint
+did not have.
+
+Only the open/closed *orientation* stays in Python, because the URDF cannot express it: each
+Onshape mate was built with its own axis orientation, so positive rotation means a different
+physical direction per joint.
 
 **The Linear Interpolation Bridge (`map_raw_to_urdf_angles`)**
 This loop processes each joint independently through two mathematical operations:

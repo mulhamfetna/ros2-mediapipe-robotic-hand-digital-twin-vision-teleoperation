@@ -44,12 +44,13 @@ domain ID, or `docker compose exec`.
 Three couplings will silently break the twin if edited independently:
 
 1. **`JOINT_MAPPING` ↔ `ros_rviz/urdf/robot.urdf`.** Each tuple is
-   `(urdf_joint_name, mediapipe_triplet_index, open_angle, closed_angle)`, and the open/closed
-   values are transcribed from that joint's `<limit lower/upper>` in the URDF — with the sign
-   convention chosen per joint (some are open→negative, some open→positive). Changing the URDF
-   limits, or re-exporting from Onshape, invalidates the table. **The pinky is named `twinky`** in
-   the CAD and therefore in the URDF and the mapping; `ring_*` and `twinky_*` were previously
-   duplicated, so verify joint names after any re-export.
+   `(urdf_joint_name, mediapipe_triplet_index, open_at)` where `open_at` is `'lower'` or
+   `'upper'` — which end of that joint's range is the open hand. **The angles themselves are no
+   longer stored here**: `resolve_joint_mapping()` parses `<limit lower/upper>` out of the URDF at
+   node startup (`URDF_PATH`, default `/urdf/robot.urdf`, mounted read-only into the container).
+   Editing the URDF limits therefore needs no Python change. Renaming a joint still does — and now
+   raises at startup instead of silently freezing that finger. **The pinky is named `twinky`** in
+   the CAD and therefore in the URDF and the mapping.
 2. **`RAW_STRAIGHT_ANGLE` / `RAW_CURLED_ANGLE`** (3.10 / 1.60 rad) define the normalization window
    from raw MediaPipe angle to 0.0–1.0 flexion, which is then linearly interpolated between the
    URDF limits. These are empirical calibration constants, not derived — tune here, not in the

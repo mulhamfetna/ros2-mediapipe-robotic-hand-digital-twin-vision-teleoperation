@@ -120,9 +120,19 @@ urdf_angle = open_angle + flexion * (closed_angle - open_angle)
 bent finger) are empirical calibration bounds, not derived constants — they define the window of
 human motion that gets stretched across the mechanism's full range.
 
-The 15 rows of `JOINT_MAPPING` bind each computed angle to a named URDF joint and its open/closed
-radian limits. Sign conventions differ per joint because the CAD mates were built in different
-orientations; the table encodes that rather than fighting it.
+The 15 rows of `JOINT_MAPPING` bind each computed angle to a named URDF joint:
+
+```python
+('index_mcp',   3, 'upper'),   # opens at this joint's upper limit
+('middle_pip',  7, 'lower'),   # opens at its lower limit
+```
+
+The **radian limits are not stored here.** `resolve_joint_mapping()` parses them from
+`<limit lower/upper>` in the URDF when the node starts, so they live in exactly one place — and a
+joint renamed by a CAD re-export raises at startup rather than silently freezing that finger. Only
+the open/closed *orientation* stays in Python, because the URDF cannot express it: each Onshape
+mate was built with its own axis orientation, so positive rotation means a different physical
+direction per joint.
 
 | Digit | Joints | Note |
 |---|---|---|
@@ -167,7 +177,9 @@ Stated plainly, because they bound what this project demonstrates:
 - **Not relocatable** without editing the absolute paths described above.
 
 Limits that were fixed rather than merely documented are recorded in the same file — including a
-`ring_mcp` mapping row that used to command ~23° past the joint's mechanical stop.
+`ring_mcp` mapping row that used to command ~23° past the joint's mechanical stop, and the
+structural change that makes that class of bug impossible: the limits are now read from the URDF
+rather than transcribed into Python.
 
 ## CAD
 

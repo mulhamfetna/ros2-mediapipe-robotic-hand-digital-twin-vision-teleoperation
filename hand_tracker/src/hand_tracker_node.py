@@ -1,3 +1,6 @@
+import os
+import xml.etree.ElementTree as ET
+
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -36,40 +39,89 @@ def compute_15_joint_angles(landmarks):
 RAW_STRAIGHT_ANGLE = 3.10  # ~177 degrees (open hand)
 RAW_CURLED_ANGLE = 1.60    # ~90 degrees (bent finger)
 
-# Explicit kinematic mapping, transcribed from the URDF joint limits
-# Format: ('URDF_Joint_Name', MP_Index, URDF_Open_Angle, URDF_Closed_Angle)
+# The URDF is the single source of truth for joint limits. Transcribing them here
+# is what let ring_mcp drift 23 degrees past its mechanical stop, so the numbers are
+# now read from the robot description at startup instead.
+URDF_PATH = os.environ.get("HAND_URDF", "/urdf/robot.urdf")
+
+# The one thing the URDF cannot tell us: which end of each joint's range is the
+# open hand. That is a CAD convention -- mates were built with differing axis
+# orientations, so "positive rotation" means a different physical direction per joint.
+# Format: (urdf_joint_name, mediapipe_triplet_index, limit that corresponds to open)
 JOINT_MAPPING = [
     # THUMB
-    ('thumb_mcp',   0, -1.377,  0.194),
-    ('thumb_pip',   1, -1.126,  0.445),
-    ('thumb_dip',   2, -1.142,  0.429),
-    
+    ('thumb_mcp',   0, 'lower'),
+    ('thumb_pip',   1, 'lower'),
+    ('thumb_dip',   2, 'lower'),
+
     # INDEX
-    ('index_mcp',   3,  0.960, -0.611),
-    ('index_pip',   4,  0.000, -1.571),
-    ('index_dip',   5,  0.000, -1.571),
-    
+    ('index_mcp',   3, 'upper'),
+    ('index_pip',   4, 'upper'),
+    ('index_dip',   5, 'upper'),
+
     # MIDDLE
-    ('middle_mcp',  6,  0.652, -0.919),
-    ('middle_pip',  7,  0.000,  1.571),
-    ('middle_dip',  8, -0.087,  1.484),
-    
+    ('middle_mcp',  6, 'upper'),
+    ('middle_pip',  7, 'lower'),
+    ('middle_dip',  8, 'lower'),
+
     # RING
-    ('ring_mcp',    9,  0.397, -1.174),
-    ('ring_pip',   10,  0.000,  1.571),
-    ('ring_dip',   11,  0.000, -1.571),
-    
+    ('ring_mcp',    9, 'upper'),
+    ('ring_pip',   10, 'lower'),
+    ('ring_dip',   11, 'upper'),
+
     # PINKY (Twinky in CAD)
-    ('twinky_mcp', 12,  0.000, -1.571),
-    ('twinky_pip', 13,  0.000,  1.571),
-    ('twinky_dip', 14,  0.000, -1.571),
+    ('twinky_mcp', 12, 'upper'),
+    ('twinky_pip', 13, 'lower'),
+    ('twinky_dip', 14, 'upper'),
 ]
 
-def map_raw_to_urdf_angles(raw_angles):
+
+def load_urdf_limits(urdf_path):
+    """Return {joint_name: (lower, upper)} for every revolute joint in the URDF."""
+    root = ET.parse(urdf_path).getroot()
+    limits = {}
+    for joint in root.findall('joint'):
+        limit = joint.find('limit')
+        if limit is None:
+            continue
+        lower, upper = limit.get('lower'), limit.get('upper')
+        if lower is None or upper is None:
+            continue
+        limits[joint.get('name')] = (float(lower), float(upper))
+    return limits
+
+
+def resolve_joint_mapping(urdf_path=URDF_PATH):
+    """Bind each mapping row to the live URDF limits.
+
+    Returns [(joint_name, mp_index, open_angle, closed_angle)].
+    Raises if the URDF is unreadable or a mapped joint is missing from it -- a
+    silent mismatch here is exactly the failure mode this function exists to remove.
+    """
+    limits = load_urdf_limits(urdf_path)
+
+    missing = [name for name, _, _ in JOINT_MAPPING if name not in limits]
+    if missing:
+        raise RuntimeError(
+            f"Joints in JOINT_MAPPING are absent from {urdf_path}: {missing}. "
+            "The URDF was probably re-exported with different mate names."
+        )
+
+    resolved = []
+    for name, mp_idx, open_at in JOINT_MAPPING:
+        lower, upper = limits[name]
+        open_angle, closed_angle = (lower, upper) if open_at == 'lower' else (upper, lower)
+        resolved.append((name, mp_idx, open_angle, closed_angle))
+
+    unmapped = sorted(set(limits) - {name for name, _, _ in JOINT_MAPPING})
+    return resolved, unmapped
+
+
+def map_raw_to_urdf_angles(raw_angles, mapping):
     joint_names = []
     mapped_positions = []
-    
-    for name, mp_idx, open_angle, closed_angle in JOINT_MAPPING:
+
+    for name, mp_idx, open_angle, closed_angle in mapping:
         raw_angle = raw_angles[mp_idx]
         
         # Normalize flexion: 0.0 = completely straight, 1.0 = completely curled
@@ -90,7 +142,24 @@ class HandTrackerNode(Node):
         self.publisher = self.create_publisher(JointAngles, "/hand/joint_angles", 10)
         self.rviz_publisher = self.create_publisher(JointState, "/joint_states", 10)
         self.timer = self.create_timer(1.0 / 10.0, self.timer_callback)
-        
+
+        # Fail loudly at startup rather than silently driving a joint past its stop
+        try:
+            self.joint_mapping, unmapped = resolve_joint_mapping()
+        except (OSError, ET.ParseError) as exc:
+            self.get_logger().error(
+                f"Cannot read the URDF at {URDF_PATH}: {exc}. "
+                "Is ros_rviz/urdf mounted into this container?"
+            )
+            raise
+        self.get_logger().info(
+            f"Loaded limits for {len(self.joint_mapping)} joints from {URDF_PATH}"
+        )
+        if unmapped:
+            self.get_logger().warn(
+                f"URDF joints with no mapping row, so they will never move: {unmapped}"
+            )
+
         self.cap = cv2.VideoCapture(0)
         if not self.cap.isOpened():
             self.get_logger().error("Failed to open camera")
@@ -118,7 +187,7 @@ class HandTrackerNode(Node):
         # Default fallback variables using the mapped "Open" pose
         msg = JointAngles()
         msg.angles = [RAW_STRAIGHT_ANGLE] * 15
-        urdf_names, urdf_angles = map_raw_to_urdf_angles(msg.angles)
+        urdf_names, urdf_angles = map_raw_to_urdf_angles(msg.angles, self.joint_mapping)
 
         if results.multi_hand_landmarks:
             hand_object = results.multi_hand_landmarks[0]
@@ -127,8 +196,8 @@ class HandTrackerNode(Node):
             landmarks = [(lm.x, lm.y, lm.z) for lm in hand_object.landmark]
             msg.angles = compute_15_joint_angles(landmarks)
 
-            # Route angles through the explicit dictionary map
-            urdf_names, urdf_angles = map_raw_to_urdf_angles(msg.angles)
+            # Route angles through the URDF-derived map
+            urdf_names, urdf_angles = map_raw_to_urdf_angles(msg.angles, self.joint_mapping)
             
             self.get_logger().info(f"Tracking Index MCP: {urdf_angles[3]:.2f}")
         

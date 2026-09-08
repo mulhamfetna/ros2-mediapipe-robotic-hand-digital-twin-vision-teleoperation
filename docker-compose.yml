@@ -62,6 +62,8 @@ services:
       - /dev/dri:/dev/dri
     volumes:
       - ./hand_tracker/src:/ws_hand_tracker/src:ro
+      # the tracker reads joint limits straight from the robot description
+      - ./ros_rviz/urdf:/urdf:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     privileged: true
 
