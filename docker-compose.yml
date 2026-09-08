@@ -12,7 +12,7 @@ services:
       - ROS_DOMAIN_ID=42
       - QT_X11_NO_MITSHM=1
     devices:
-      - /dev/dri:/dev/dri    # <--- CRITICAL: Restores Intel GPU 3D rendering
+      - /dev/dri:/dev/dri
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /mnt/data/projects/ros-robotic-hand:/workspace:rw
@@ -23,8 +23,27 @@ services:
         exec rviz2 -d /workspace/ros_rviz/config.rviz
       "
     privileged: true
-    
-  
+
+  gazebo_sim:
+    build:
+      context: .
+      dockerfile: ./gazebo_sim/Dockerfile
+    container_name: gazebo_sim
+    network_mode: "host"
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - ROS_DOMAIN_ID=42
+      - QT_X11_NO_MITSHM=1
+      - GZ_SIM_RESOURCE_PATH=/workspace/assets
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /mnt/data/projects/ros-robotic-hand:/workspace:rw
+    privileged: true
+
   hand_tracker:
     build:
       context: .
@@ -45,7 +64,7 @@ services:
       - ./hand_tracker/src:/ws_hand_tracker/src:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     privileged: true
-  
+
   topic_sniffer:
     build:
       context: ./topic_sniffer

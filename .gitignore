@@ -23,3 +23,5 @@ __pycache__/
 
 # Ignore local CAD exports if you prefer users to download them fresh
 # assets/*.stl
+# MediaPipe model weights (auto-downloaded by the demo scripts)
+*.task

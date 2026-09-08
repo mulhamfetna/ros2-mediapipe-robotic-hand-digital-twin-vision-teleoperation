@@ -1,0 +1,29 @@
+{
+  "title": "ROS 2 MediaPipe Robotic Hand: Real-Time Teleoperation Digital Twin",
+  "description": "<p>A fully containerized, vision-based digital twin of a 15-DOF robotic hand. A standard RGB webcam feeds Google MediaPipe Hands, whose 21 spatial landmarks are converted into 15 anatomical joint angles by vector dot product, normalized into a flexion ratio, and linearly interpolated onto the mechanical joint limits of a CAD-exported URDF. The resulting joint states drive a digital twin in ROS 2 Jazzy and RViz in real time.</p><p>The stack runs as four Docker Compose services on ROS 2 Jazzy with X11 forwarding, GPU and webcam passthrough, and includes the complete CAD-to-URDF export pipeline from Onshape. The repository ships approximately 12,000 words of engineering documentation covering the MediaPipe two-stage cascade, the kinematic mapping mathematics, the ROS 2 node graph, container infrastructure, and an honest audit of the CAD export's defects.</p>",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "AGPL-3.0-or-later",
+  "creators": [
+    {
+      "name": "Fetna, Mulham Mohammed",
+      "orcid": "0009-0006-4432-798X",
+      "affiliation": "University of Aleppo"
+    }
+  ],
+  "keywords": [
+    "ROS 2",
+    "MediaPipe",
+    "digital twin",
+    "teleoperation",
+    "robotic hand",
+    "forward kinematics",
+    "URDF",
+    "computer vision",
+    "markerless motion capture",
+    "mechatronics",
+    "Docker",
+    "Gazebo"
+  ],
+  "language": "eng"
+}
