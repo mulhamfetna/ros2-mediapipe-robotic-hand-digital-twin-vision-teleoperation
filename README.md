@@ -195,15 +195,15 @@ please cite it. Metadata lives in [`CITATION.cff`](CITATION.cff); GitHub renders
 citation from the *Cite this repository* button in the sidebar.
 
 The **concept DOI [10.5281/zenodo.22658556](https://doi.org/10.5281/zenodo.22658556)** always resolves to the
-latest version; cite it unless you need to pin a specific release. v1.0.0 is
-[10.5281/zenodo.22658557](https://doi.org/10.5281/zenodo.22658557).
+latest version; cite it unless you need to pin a specific release. Pinned versions:
+[v1.1.0](https://doi.org/10.5281/zenodo.22659597) · [v1.0.0](https://doi.org/10.5281/zenodo.22658557).
 
 ```bibtex
 @software{fetna_ros2_mediapipe_robotic_hand_2026,
   author    = {Fetna, Mulham Mohammed},
   title     = {{ROS 2 MediaPipe Robotic Hand: Real-Time Teleoperation Digital Twin}},
   year      = {2026},
-  version   = {1.0.0},
+  version   = {1.1.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.22658556},
   url       = {https://doi.org/10.5281/zenodo.22658556}
